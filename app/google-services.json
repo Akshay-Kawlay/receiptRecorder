@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "460806484842",
+    "firebase_url": "https://textreader-8a724.firebaseio.com",
+    "project_id": "textreader-8a724",
+    "storage_bucket": "textreader-8a724.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460806484842:android:7ef5d0161396bbd9",
+        "android_client_info": {
+          "package_name": "ak.kawlay.mail.utoronto.ca.textreader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "460806484842-krludor317ebsnm4u185nns3n3bp7978.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0ywzGTJZSYQmhEGLSk1jotHGqJLlqM0s"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
