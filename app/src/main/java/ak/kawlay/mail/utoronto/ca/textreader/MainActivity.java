@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fillRecord(String name, Double amount, String category){
-        String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        String timeStamp = new SimpleDateFormat("EEE, d MMM yyyy HH:mm aaa").format(new Date());
         receiptRecord newRecord = new receiptRecord(amount, name, category, timeStamp, mCurrentPhotoPath);
 
         recordList.add(newRecord);
