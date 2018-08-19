@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         List<String> name = new ArrayList<String>();
         name.add("Unknown");
         int topMostLine = Integer.MAX_VALUE;
+        int lowestElement = Integer.MIN_VALUE;
         Rect nameBoundingBox = new Rect(0,0,0,0);
 
         for (FirebaseVisionText.Block block : text.getBlocks()){
@@ -192,8 +193,9 @@ public class MainActivity extends AppCompatActivity {
                             String str = elementText.replace("$", "");
                             Rect elementFrame = element.getBoundingBox();
                             Double amount = Double.parseDouble(str);
-                            if (amount > maxAmountPaid) {
+                            if (elementFrame.bottom > lowestElement) {
                                 maxAmountPaid = amount;
+                                lowestElement = elementFrame.bottom;
                                 maxAmountRect.top = elementFrame.top;
                                 maxAmountRect.bottom = elementFrame.bottom;
                                 maxAmountRect.left = elementFrame.left;
