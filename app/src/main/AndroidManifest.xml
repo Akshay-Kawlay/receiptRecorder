@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ak.kawlay.mail.utoronto.ca.textreader">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-                     android:maxSdkVersion="18" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -30,14 +32,18 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".SecondActivity"></activity>
+        <activity android:name=".SecondActivity" />
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
+
+        <activity
+            android:name=".ScrollingActivity"
+            android:label="@string/title_activity_scrolling"></activity>
     </application>
 
 </manifest>

@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -28,19 +29,22 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private  ImageView imageView;
-    private  Bitmap imageBitmap;
+    private ImageView imageView;
+    private EditText editTextCategory;
+    private Bitmap imageBitmap;
     private StringBuilder detectedList;
-    private Intent startIntent;
+    private Intent startIntentHistory;
     private String mCurrentPhotoPath;
 
-    //to do: create database to store catagory -> date,time -> picture path with name,amount
+    //to do: create database to store catagoAry -> date,time -> picture path with name,amount
+    private List<receiptRecord> recordList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,21 +52,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Button snapBtn = (Button) findViewById(R.id.snapBtn);
-        Button detectBtn = (Button) findViewById(R.id.detectBtn);
-        imageView = (ImageView) findViewById(R.id.imageView);
-        startIntent = new Intent(getApplicationContext(), SecondActivity.class);
+        Button historyBtn = findViewById(R.id.buttonHistory);
+
+        imageView = (ImageView) findViewById(R.id.imageViewReceipt);
+        editTextCategory = findViewById(R.id.editTextCategory);
+
+        recordList = new ArrayList<receiptRecord>();
 
         snapBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
-                dispatchTakePictureIntent();
+                if (editTextCategory.getText().toString().matches("")) {
+                    Toast.makeText(MainActivity.this, "Please enter category of receipt", Toast.LENGTH_LONG).show();
+                } else {
+                    dispatchTakePictureIntent();
+                }
+
+
             }
         });
 
-        detectBtn.setOnClickListener(new View.OnClickListener() {
+        historyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                detectText();
+                startIntentHistory = new Intent(getApplicationContext(), ScrollingActivity.class);
+                startIntentHistory.putExtra("ca.utoronto.mail.kawlay.ak.textreader.RECORD_LIST", (Serializable) recordList);
+                startActivity(startIntentHistory);
             }
         });
     }
@@ -100,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
             Bitmap rotatedBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
             imageView.setImageBitmap(rotatedBitmap);
             imageBitmap = rotatedBitmap;
+
+            detectText();
 
         }
     }
@@ -191,18 +208,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        detectedList = new StringBuilder();
-        for(String s : name){
-            detectedList.append(s);
-            detectedList.append(" : ");
-        }
-        detectedList.append("$");
-        detectedList.append(maxAmountPaid);
+        String Category = editTextCategory.getText().toString();
+        fillRecord(name.get(0), maxAmountPaid, Category);
 
-        startIntent.putExtra("ca.utoronto.mail.kawlay.ak.textreader.SOMETHING", detectedList.toString());
-        startActivity(startIntent);
+    }
 
+    private void fillRecord(String name, Double amount, String category){
+        String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        receiptRecord newRecord = new receiptRecord(amount, name, category, timeStamp, mCurrentPhotoPath);
 
+        recordList.add(newRecord);
     }
 
 }

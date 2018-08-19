@@ -11,29 +11,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="28dp"
-        android:layout_marginEnd="32dp"
         android:layout_marginStart="8dp"
         android:text="CAPTURE"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.183"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/detectBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="24dp"
-        android:text="SAVE"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.611"
-        app:layout_constraintStart_toEndOf="@+id/snapBtn" />
-
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageViewReceipt"
         android:layout_width="364dp"
         android:layout_height="441dp"
         android:layout_marginBottom="8dp"
@@ -46,5 +30,31 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/common_full_open_on_phone" />
+
+    <Button
+        android:id="@+id/buttonHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:layout_marginEnd="8dp"
+        android:text="RECORDS"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextCategory"
+        android:layout_width="368dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Enter Category"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/buttonHistory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewReceipt" />
 
 </android.support.constraint.ConstraintLayout>
