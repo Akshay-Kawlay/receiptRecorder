@@ -3,8 +3,12 @@ package ak.kawlay.mail.utoronto.ca.textreader;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Bundle;
@@ -113,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
             Matrix matrix = new Matrix();
             matrix.postRotate(90);
             Bitmap rotatedBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
-            imageView.setImageBitmap(rotatedBitmap);
+            //imageView.setImageBitmap(rotatedBitmap);
             imageBitmap = rotatedBitmap;
 
             detectText();
@@ -210,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        drawBoundingBox(nameBoundingBox, maxAmountRect);
+
         String Category = editTextCategory.getText().toString();
         fillRecord(name.get(0), maxAmountPaid, Category);
 
@@ -220,6 +226,25 @@ public class MainActivity extends AppCompatActivity {
         receiptRecord newRecord = new receiptRecord(amount, name, category, timeStamp, mCurrentPhotoPath);
 
         recordList.add(newRecord);
+    }
+
+    private void drawBoundingBox(Rect box1, Rect box2){
+        Bitmap tempBitmap = Bitmap.createBitmap(imageBitmap.getWidth(), imageBitmap.getHeight(), Bitmap.Config.RGB_565);
+        Canvas tempCanvas = new Canvas(tempBitmap);
+        Paint myPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        myPaint.setColor(Color.RED);
+        myPaint.setStrokeWidth(15);
+        myPaint.setStyle(Paint.Style.STROKE);
+        //Draw the image bitmap into the canvas
+        tempCanvas.drawBitmap(imageBitmap, 0, 0, null);
+
+        //Draw everything else you want into the canvas, in this example a rectangle with rounded edges
+        tempCanvas.drawRect(box1,myPaint);
+        tempCanvas.drawRect(box2,myPaint);
+
+        //Attach the canvas to the ImageView
+        imageView.setImageDrawable(new BitmapDrawable(getResources(), tempBitmap));
+        //imageView.setImageBitmap(imageBitmap);
     }
 
 }
