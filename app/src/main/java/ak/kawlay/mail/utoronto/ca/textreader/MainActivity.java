@@ -33,7 +33,6 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,9 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private StringBuilder detectedList;
     private Intent startIntentHistory;
     private String mCurrentPhotoPath;
-
-    //to do: create database to store catagoAry -> date,time -> picture path with name,amount
-    private List<receiptRecord> recordList;
+    DatabaseHelper mDatabaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         imageView = (ImageView) findViewById(R.id.imageViewReceipt);
         editTextCategory = findViewById(R.id.editTextCategory);
-
-        recordList = new ArrayList<receiptRecord>();
+        mDatabaseHelper = new DatabaseHelper(this);     //create database to store records
 
         snapBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startIntentHistory = new Intent(getApplicationContext(), ScrollingActivity.class);
-                startIntentHistory.putExtra("ca.utoronto.mail.kawlay.ak.textreader.RECORD_LIST", (Serializable) recordList);
                 startActivity(startIntentHistory);
             }
         });
@@ -190,20 +185,22 @@ public class MainActivity extends AppCompatActivity {
                     nameBoundingBox.right = lineFrame.right;
 
                 }
+
                 for (FirebaseVisionText.Element element: line.getElements()) {
                     String elementText = element.getText();
                     for (int i = 0; i < elementText.length(); i++){
                         if (elementText.charAt(i)=='$'){
                             String str = elementText.replace("$", "");
                             Rect elementFrame = element.getBoundingBox();
-                            Double amount = Double.parseDouble(str);
+                            
                             if (elementFrame.bottom > lowestElement) {
+                                Double amount = Double.parseDouble(str);
                                 maxAmountPaid = amount;
                                 lowestElement = elementFrame.bottom;
-                                maxAmountRect.top = elementFrame.top;
-                                maxAmountRect.bottom = elementFrame.bottom;
-                                maxAmountRect.left = elementFrame.left;
-                                maxAmountRect.right = elementFrame.right;
+                                maxAmountRect.top = lineFrame.top;
+                                maxAmountRect.bottom = lineFrame.bottom;
+                                maxAmountRect.left = lineFrame.left;
+                                maxAmountRect.right = lineFrame.right;
                             }
 
                             Log.i("AMOUNT="+elementText, str);
@@ -225,7 +222,12 @@ public class MainActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("EEE, d MMM yyyy HH:mm aaa").format(new Date());
         receiptRecord newRecord = new receiptRecord(amount, name, category, timeStamp, mCurrentPhotoPath);
 
-        recordList.add(newRecord);
+        boolean check = mDatabaseHelper.addData(newRecord);
+        if(check){
+            Toast.makeText(MainActivity.this, "New record successfully added to database", Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(MainActivity.this, "New record could not be added to database", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void drawBoundingBox(Rect box1, Rect box2){
