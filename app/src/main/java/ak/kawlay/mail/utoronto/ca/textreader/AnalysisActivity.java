@@ -25,7 +25,7 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
     Spinner spinner;
     TextView totalExpense;
     private static final String[] items = {"CategoryWiseTotalExpenditure", "CategoryWiseThisYearExpenditure",
-            "YearWiseTotalExpenditure"};
+            "YearWiseTotalExpenditure", "CategoryWiseThisMonthExpenditure", "MonthWiseThisYearExpenditure"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,15 +55,15 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
 
         analyzeCategoryWiseTotalExpenditure(position);
 
-       /* switch (position) {
+       /*switch (position) {            //WORK IN PROGRESS
             case 0:
-                total = String.valueOf(mDatabaseHelper.getTotalExpenditure());
+                total = mDatabaseHelper.getTotalExpenditure();
                 break;
             case 1:
-                total = String.valueOf(mDatabaseHelper.getTotalExpenditureThisYear());
+                //total = String.valueOf(mDatabaseHelper.getTotalExpenditureThisYear());
                 break;
             case 2:
-                total = String.valueOf(mDatabaseHelper.getTotalExpenditure());
+                //total = String.valueOf(mDatabaseHelper.getTotalExpenditure());
                 break;
             case 3:
                 //TODO Calculate Category wise this months total
@@ -71,8 +71,8 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
             default:
                 Log.e("AnalysisActivity", "getQueryData: Invalid query request");
 
-        }*/
-
+        }
+      */
         totalExpense.setText(total);
     }
 
@@ -122,10 +122,12 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
                 data = mDatabaseHelper.getYearWiseTotalExpenditure();
                 break;
             case 3:
-                //TODO get Category wise expenditure for this month
+                //get Category wise expenditure for this month
+                data = mDatabaseHelper.getCategoryWiseThisMonthExpenditure();
                 break;
             case 4:
-                //TODO get Month wise total expenditure for this year
+                //get Month wise total expenditure for this year
+                data = mDatabaseHelper.getMonthWiseThisYearExpenditure();
                 break;
             default:
                 Log.e("AnalysisActivity", "getQueryData: Invalid query request");

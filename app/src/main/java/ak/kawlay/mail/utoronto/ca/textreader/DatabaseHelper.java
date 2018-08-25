@@ -75,19 +75,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return data;
     }
 
-    public Cursor getTotalExpenditure(){
+    public String getTotalExpenditure(){                                // Work in Progress
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT sum(" + COL5 + ") FROM " + TABLE_NAME;
         Cursor data = db.rawQuery(query, null);
 
-        return data;
+        return data.getString(0);
     }
 
     public Double getTotalExpenditureThisYear(){
         SQLiteDatabase db = this.getWritableDatabase();
         String year = new SimpleDateFormat("yyyy").format(new Date());
         String query = "SELECT sum(" + COL5 + ") FROM " + TABLE_NAME +
-                      " WHERE " + COL7 + "==" + year;
+                      " WHERE " + COL7 + "==" + "'"+year+"'";
         Cursor data = db.rawQuery(query, null);
 
         return data.getDouble(0);
@@ -99,7 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String year = new SimpleDateFormat("yyyy").format(new Date());
         String query = "SELECT " + COL3 +", sum(" + COL5 + ")"+
                 " FROM " + TABLE_NAME +
-                " WHERE " + "("+ COL6 + "==" + month + " and " + COL7 + "==" + year + ")" +
+                " WHERE " + COL6 + "==" + "'"+month+"'" + " and " + COL7 + "==" + "'"+year+"'" +
                 " GROUP BY " + COL3;
         Cursor data = db.rawQuery(query, null);
 
@@ -111,7 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String year = new SimpleDateFormat("yyyy").format(new Date());
         String query = "SELECT " + COL3 +", sum(" + COL5 + ")"+
                 " FROM " + TABLE_NAME +
-                " WHERE " + COL7 + "==" + year +
+                " WHERE " + COL7 + "==" + "'"+year+"'" +
                 " GROUP BY " + COL3;
         Cursor data = db.rawQuery(query, null);
 
@@ -138,11 +138,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return data;
     }
 
+    public Cursor getMonthWiseThisYearExpenditure(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String month = new SimpleDateFormat("MMM").format(new Date());
+        String year = new SimpleDateFormat("yyyy").format(new Date());
+
+        String query = "SELECT " + COL6 +", sum(" + COL5 + ")"+
+                " FROM " + TABLE_NAME +
+                " WHERE " + COL6 + "==" + "'"+month+"'" + " and " + COL7 + "==" + "'"+year+"'" +
+                " GROUP BY " + COL6;
+        Cursor data = db.rawQuery(query, null);
+
+        return data;
+    }
+
     public void load_testbed(){
 
         add_testbed_data("NANDOS", "Some Date","FOOD" ,12.80,"Jan", "2016" );
         add_testbed_data("Hakka", "Some Date","FOOD" ,16.40,"Feb", "2017" );
-        add_testbed_data("Pizza Nova", "Some Date","FOOD" ,10.90,"May", "2018" );
+        add_testbed_data("Pizza Nova", "Some Date","FOOD" ,10.90,"Aug", "2018" );
 
         add_testbed_data("IMAX", "Some Date","MOVIE" ,20.22,"Jul", "2016" );
         add_testbed_data("SILVER CITY", "Some Date","MOVIE" ,12.54,"Feb", "2017");
@@ -150,7 +164,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         add_testbed_data("PENCIL", "Some Date","SCHOOL" ,7.22,"Nov", "2016" );
         add_testbed_data("PAPER", "Some Date","SCHOOL" ,12.54,"Jun", "2017");
-        add_testbed_data("ERASER", "Some Date","SCHOOL" ,3.65,"Aug", "2018");
+        add_testbed_data("ERASER", "Some Date","SCHOOL" ,9.65,"Aug", "2018");
 
     }
 

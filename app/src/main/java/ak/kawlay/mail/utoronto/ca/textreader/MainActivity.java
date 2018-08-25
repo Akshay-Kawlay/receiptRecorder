@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         mDatabaseHelper = new DatabaseHelper(this);     //create database to store records
 
         /*TEST BED*/
-        mDatabaseHelper.load_testbed();
+        //mDatabaseHelper.load_testbed();
 
         snapBtn.setOnClickListener(new View.OnClickListener() {
             @Override
