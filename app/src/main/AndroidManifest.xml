@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ak.kawlay.mail.utoronto.ca.textreader">
 
-    <permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature"/>
+    <permission
+        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
+        android:protectionLevel="signature" />
 
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -37,14 +39,14 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
 
         <activity
             android:name=".ScrollingActivity"
-            android:label="@string/title_activity_scrolling"></activity>
+            android:label="@string/title_activity_scrolling" />
+        <activity android:name=".AnalysisActivity"></activity>
     </application>
 
 </manifest>

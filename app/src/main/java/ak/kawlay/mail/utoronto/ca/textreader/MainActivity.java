@@ -52,10 +52,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button snapBtn = (Button) findViewById(R.id.snapBtn);
+        Button snapBtn = findViewById(R.id.snapBtn);
         Button historyBtn = findViewById(R.id.buttonHistory);
+        Button analyzeBtn = findViewById(R.id.analyzeBtn);
 
-        imageView = (ImageView) findViewById(R.id.imageViewReceipt);
+        imageView = findViewById(R.id.imageViewReceipt);
         editTextCategory = findViewById(R.id.editTextCategory);
         mDatabaseHelper = new DatabaseHelper(this);     //create database to store records
 
@@ -77,6 +78,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 startIntentHistory = new Intent(getApplicationContext(), ScrollingActivity.class);
                 startActivity(startIntentHistory);
+            }
+        });
+
+        analyzeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startAnalyzingIntent = new Intent(getApplicationContext(), AnalysisActivity.class);
+                startActivity(startAnalyzingIntent);
             }
         });
     }

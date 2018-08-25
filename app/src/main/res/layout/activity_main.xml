@@ -57,4 +57,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageViewReceipt" />
 
+    <Button
+        android:id="@+id/analyzeBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="ANALYZE"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/buttonHistory"
+        app:layout_constraintStart_toStartOf="@+id/snapBtn" />
+
 </android.support.constraint.ConstraintLayout>
