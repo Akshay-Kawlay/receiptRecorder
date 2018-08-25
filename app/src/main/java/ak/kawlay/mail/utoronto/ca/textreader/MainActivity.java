@@ -60,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
         editTextCategory = findViewById(R.id.editTextCategory);
         mDatabaseHelper = new DatabaseHelper(this);     //create database to store records
 
+        /*TEST BED*/
+        mDatabaseHelper.load_testbed();
+
         snapBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
@@ -257,5 +260,6 @@ public class MainActivity extends AppCompatActivity {
         imageView.setImageDrawable(new BitmapDrawable(getResources(), tempBitmap));
         //imageView.setImageBitmap(imageBitmap);
     }
+
 
 }

@@ -137,4 +137,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return data;
     }
+
+    public void load_testbed(){
+
+        add_testbed_data("NANDOS", "Some Date","FOOD" ,12.80,"Jan", "2016" );
+        add_testbed_data("Hakka", "Some Date","FOOD" ,16.40,"Feb", "2017" );
+        add_testbed_data("Pizza Nova", "Some Date","FOOD" ,10.90,"May", "2018" );
+
+        add_testbed_data("IMAX", "Some Date","MOVIE" ,20.22,"Jul", "2016" );
+        add_testbed_data("SILVER CITY", "Some Date","MOVIE" ,12.54,"Feb", "2017");
+        add_testbed_data("INOX", "Some Date","MOVIE" ,18.65,"Aug", "2018");
+
+        add_testbed_data("PENCIL", "Some Date","SCHOOL" ,7.22,"Nov", "2016" );
+        add_testbed_data("PAPER", "Some Date","SCHOOL" ,12.54,"Jun", "2017");
+        add_testbed_data("ERASER", "Some Date","SCHOOL" ,3.65,"Aug", "2018");
+
+    }
+
+    public void add_testbed_data(String Name, String Date, String Category, Double amount, String month, String year){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL1, Name);
+        contentValues.put(COL2, Date);
+        contentValues.put(COL3, Category);
+        contentValues.put(COL4, "NULL");
+        contentValues.put(COL5, amount);
+        contentValues.put(COL6, month);
+        contentValues.put(COL7, year);
+
+        Log.i(TAG, "addData: Adding "+ Name + " to " + TABLE_NAME);
+
+        db.insert(TABLE_NAME, null, contentValues);
+
+    }
 }
