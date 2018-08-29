@@ -1,10 +1,12 @@
 package ak.kawlay.mail.utoronto.ca.textreader;
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -23,9 +25,12 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
     BarChart barChart;
     DatabaseHelper mDatabaseHelper;
     Spinner spinner;
+    Spinner spinnerCategory;
     TextView totalExpense;
-    private static final String[] items = {"CategoryWiseTotalExpenditure", "CategoryWiseThisYearExpenditure",
-            "YearWiseTotalExpenditure", "CategoryWiseThisMonthExpenditure", "MonthWiseThisYearExpenditure"};
+
+    ArrayList<String> mCategoryList;
+    private static final String[] items = {"Grand Total Expenditure", "This Year's Expenditure",
+            "Total Expenditure Per Year", "This Month's Expenditure", "Monthly Expenditure This Year"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,55 +40,103 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
         barChart = findViewById(R.id.bargraph);
         mDatabaseHelper = new DatabaseHelper(this);
         totalExpense = findViewById(R.id.textViewNumber);
+        spinner = findViewById(R.id.spinner);
+        spinnerCategory = findViewById(R.id.spinnerCategory);
+
+        totalExpense.setTextSize(25);
 
         barChart.setTouchEnabled(true);
         barChart.setDragEnabled(true);
         barChart.setScaleEnabled(true);
         barChart.setDrawBorders(true);
+        barChart.invalidate();
 
-        spinner = findViewById(R.id.spinner);
+        mCategoryList = mDatabaseHelper.getAllCategories();
+        mCategoryList.add(0, "Analyze Per Category");
+        ArrayAdapter<String> adapterCategory = new ArrayAdapter<String>(AnalysisActivity.this, android.R.layout.simple_spinner_item, mCategoryList){
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if(position == 0){
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.GRAY);
+                }
+                else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+        adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(adapterCategory);
+        spinnerCategory.setOnItemSelectedListener(this);
+
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(AnalysisActivity.this,
                         android.R.layout.simple_spinner_item, items);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+
     }
+
+
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String total = "N/A";
+        Double total = 0.0;
+        Spinner spin = (Spinner)parent;
+        //Spinner spinCategory = (Spinner)parent;
 
-        analyzeCategoryWiseTotalExpenditure(position);
+        if(spin.getId()==R.id.spinner) {
+            analyzeExpenditure(position);
+            switch (position) {
+                case 0:
+                    total = mDatabaseHelper.getTotalExpenditure();
+                    break;
+                case 1:
+                    total = mDatabaseHelper.getTotalExpenditureThisYear();
+                    break;
+                case 2:
+                    total = mDatabaseHelper.getTotalExpenditure();
+                    break;
+                case 3:
+                    total = mDatabaseHelper.getTotalExpenditureThisMonth();
+                    break;
+                case 4:
+                    total = mDatabaseHelper.getTotalExpenditureThisYear();
+                    break;
+                default:
+                    Log.e("AnalysisActivity", "getQueryData: Invalid query request");
 
-       /*switch (position) {            //WORK IN PROGRESS
-            case 0:
-                total = mDatabaseHelper.getTotalExpenditure();
-                break;
-            case 1:
-                //total = String.valueOf(mDatabaseHelper.getTotalExpenditureThisYear());
-                break;
-            case 2:
-                //total = String.valueOf(mDatabaseHelper.getTotalExpenditure());
-                break;
-            case 3:
-                //TODO Calculate Category wise this months total
-                break;
-            default:
-                Log.e("AnalysisActivity", "getQueryData: Invalid query request");
-
+            }
         }
-      */
-        totalExpense.setText(total);
+        if(spin.getId()==R.id.spinnerCategory){
+
+            if(position==0){
+                return;
+            }
+            String category = mCategoryList.get(position);
+
+            Toast.makeText(AnalysisActivity.this, "CATEGORY SELECTED: "+category, Toast.LENGTH_LONG).show();
+
+            //TODO Create per month expense for selected category for this year
+            //TODO Create per year expense for selected category for all years
+        }
+
+        totalExpense.setText(String.valueOf(total));
     }
 
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        analyzeCategoryWiseTotalExpenditure(0);
+        analyzeExpenditure(0);
 
     }
 
-    private void analyzeCategoryWiseTotalExpenditure(int period){
+    private void analyzeExpenditure(int period){
 
         Cursor rows = getQueryData(period);
 
@@ -106,7 +159,9 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
         //barDataSet.setColors(new int[] {16776960,16737380,6579400,16744960,6618980,16760320}, this);
 
         BarData barData = new BarData(CategoryList,barDataSet);
+        barChart.invalidate();
         barChart.setData(barData);
+
     }
 
     private Cursor getQueryData(int queryNumber){

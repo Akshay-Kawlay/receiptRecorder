@@ -68,8 +68,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Record
             textViewName = itemView.findViewById(R.id.textviewName);
             textViewDate = itemView.findViewById(R.id.textViewDate);
             textViewCategory = itemView.findViewById(R.id.textViewCategory);
+
+            imageViewReceipt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO create new intent to display full sized image of the receipt
+                }
+            });
+
         }
     }
-
-
 }
