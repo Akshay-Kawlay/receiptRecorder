@@ -87,11 +87,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sum;
     }
 
-    public Double getTotalExpenditureThisYear(){
+    public Double getTotalExpenditureForYear(String year){
         SQLiteDatabase db = this.getWritableDatabase();
-        String year = new SimpleDateFormat("yyyy").format(new Date());
         String query = "SELECT sum(" + COL5 + ") FROM " + TABLE_NAME +
                       " WHERE " + COL7 + "==" + "'"+year+"'";
+        Cursor data = db.rawQuery(query, null);
+        Double sum = -1.0;
+        while(data.moveToNext()){
+            sum = data.getDouble(0);
+        }
+        return sum;
+    }
+
+    public Double getTotalExpenditureForCategory(String category){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT sum(" + COL5 + ") FROM " + TABLE_NAME +
+                " WHERE " + COL3 + "==" + "'"+category+"'";
+        Cursor data = db.rawQuery(query, null);
+        Double sum = -1.0;
+        while(data.moveToNext()){
+            sum = data.getDouble(0);
+        }
+        return sum;
+    }
+
+    public Double getTotalExpenditureForYearAndCategory(String year, String category){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT sum(" + COL5 + ") FROM " + TABLE_NAME +
+                " WHERE " + COL7 + "==" + "'"+year+"' and " + COL3 + "==" + "'"+category+"'";
         Cursor data = db.rawQuery(query, null);
         Double sum = -1.0;
         while(data.moveToNext()){
@@ -128,25 +151,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return data;
     }
 
-    public Cursor getCategoryWiseThisYearExpenditure(){
-        SQLiteDatabase db = this.getWritableDatabase();
-        String year = new SimpleDateFormat("yyyy").format(new Date());
-        String query = "SELECT " + COL3 +", sum(" + COL5 + ")"+
-                " FROM " + TABLE_NAME +
-                " WHERE " + COL7 + "==" + "'"+year+"'" +
-                " GROUP BY " + COL3 +
-                " ORDER BY sum(" + COL5 + ") DESC";
-        Cursor data = db.rawQuery(query, null);
-
-        return data;
-    }
-
     public Cursor getCategoryWiseTotalExpenditure(){
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT " + COL3 +", sum(" + COL5 + ")"+
                       " FROM " + TABLE_NAME +
                       " GROUP BY " + COL3 +
                       " ORDER BY sum(" + COL5 + ") DESC";
+        Cursor data = db.rawQuery(query, null);
+
+        return data;
+    }
+
+    public Cursor getCategoryWiseExpenditureForYear(String year){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT " + COL3 +", sum(" + COL5 + ")"+
+                " FROM " + TABLE_NAME +
+                " WHERE " + COL7 + "==" + "'"+year+"'" +
+                " GROUP BY " + COL3 +
+                " ORDER BY sum(" + COL5 + ") DESC";
         Cursor data = db.rawQuery(query, null);
 
         return data;
@@ -163,10 +185,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return data;
     }
 
-    public Cursor getMonthWiseThisYearExpenditure(){
+    public Cursor getYearWiseCategoryExpenditure(String category){
         SQLiteDatabase db = this.getWritableDatabase();
-        String year = new SimpleDateFormat("yyyy").format(new Date());
+        String query = "SELECT " + COL7 +", sum(" + COL5 + ")"+
+                " FROM " + TABLE_NAME +
+                " WHERE " + COL3 + "==" + "'"+category+"'" +
+                " GROUP BY " + COL7 +
+                " ORDER BY " + COL7 + " DESC";
+        Cursor data = db.rawQuery(query, null);
 
+        return data;
+    }
+
+    public Cursor getMonthWiseExpenditureForYear(String year){
+        SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT " + COL6 +", sum(" + COL5 + ")"+
                 " FROM " + TABLE_NAME +
                 " WHERE " + COL7 + "==" + "'"+year+"'" +
@@ -177,9 +209,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return data;
     }
 
+    public Cursor getMonthWiseExpenditureForYearAndCategory(String year, String category){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT " + COL6 +", sum(" + COL5 + ")"+
+                " FROM " + TABLE_NAME +
+                " WHERE " + COL7 + "==" + "'"+year+"' and " + COL3 + "==" + "'"+category+"'" +
+                " GROUP BY " + COL6 +
+                " ORDER BY sum(" + COL5 + ") DESC";
+        Cursor data = db.rawQuery(query, null);
+
+        return data;
+    }
+
     public ArrayList<String> getAllCategories(){
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT distinct(" + COL3 + ") FROM " + TABLE_NAME;
+
+        Cursor data = db.rawQuery(query, null);
+        ArrayList<String> list = new ArrayList<>();
+        while(data.moveToNext()){
+            list.add(data.getString(0));
+        }
+        return list;
+    }
+
+    public ArrayList<String> getAllYears(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT distinct(" + COL7 + ") FROM " + TABLE_NAME;
 
         Cursor data = db.rawQuery(query, null);
         ArrayList<String> list = new ArrayList<>();

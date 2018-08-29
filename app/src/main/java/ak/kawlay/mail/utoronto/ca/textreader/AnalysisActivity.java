@@ -1,12 +1,10 @@
 package ak.kawlay.mail.utoronto.ca.textreader;
 
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -27,10 +25,15 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
     Spinner spinner;
     Spinner spinnerCategory;
     TextView totalExpense;
+    private int yearPosition;
+    private int categoryPosition;
+    private static final int ALL = 0;
+    private static final int GRAND_TOTAL = 1;
+    private static final int MONTHLY_PER_YEAR = 1;
+    private static final int THIS_MONTH = 2;
 
     ArrayList<String> mCategoryList;
-    private static final String[] items = {"Grand Total Expenditure", "This Year's Expenditure",
-            "Total Expenditure Per Year", "This Month's Expenditure", "Monthly Expenditure This Year"};
+    ArrayList<String> mYearList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,30 +55,19 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
         barChart.invalidate();
 
         mCategoryList = mDatabaseHelper.getAllCategories();
-        mCategoryList.add(0, "Analyze Per Category");
-        ArrayAdapter<String> adapterCategory = new ArrayAdapter<String>(AnalysisActivity.this, android.R.layout.simple_spinner_item, mCategoryList){
-            @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                if(position == 0){
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                }
-                else {
-                    tv.setTextColor(Color.BLACK);
-                }
-                return view;
-            }
-        };
+        mCategoryList.add(ALL, "All Categories");
+        mCategoryList.add(MONTHLY_PER_YEAR,"Monthly per year");
+        ArrayAdapter<String> adapterCategory = new ArrayAdapter<String>(AnalysisActivity.this, android.R.layout.simple_spinner_item, mCategoryList);
         adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCategory.setAdapter(adapterCategory);
         spinnerCategory.setOnItemSelectedListener(this);
 
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(AnalysisActivity.this,
-                        android.R.layout.simple_spinner_item, items);
+        mYearList = mDatabaseHelper.getAllYears();
+        mYearList.add(ALL, "All Years");
+        mYearList.add(GRAND_TOTAL, "Grand Total");
+        mYearList.add(THIS_MONTH, "This Month");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(AnalysisActivity.this, android.R.layout.simple_spinner_item, mYearList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
@@ -83,47 +75,57 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
     }
 
 
-
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Double total = 0.0;
+        Double total = -1.0;
         Spinner spin = (Spinner)parent;
-        //Spinner spinCategory = (Spinner)parent;
 
         if(spin.getId()==R.id.spinner) {
-            analyzeExpenditure(position);
-            switch (position) {
-                case 0:
-                    total = mDatabaseHelper.getTotalExpenditure();
-                    break;
-                case 1:
-                    total = mDatabaseHelper.getTotalExpenditureThisYear();
-                    break;
-                case 2:
-                    total = mDatabaseHelper.getTotalExpenditure();
-                    break;
-                case 3:
-                    total = mDatabaseHelper.getTotalExpenditureThisMonth();
-                    break;
-                case 4:
-                    total = mDatabaseHelper.getTotalExpenditureThisYear();
-                    break;
-                default:
-                    Log.e("AnalysisActivity", "getQueryData: Invalid query request");
-
-            }
+            yearPosition = position;
         }
         if(spin.getId()==R.id.spinnerCategory){
+            categoryPosition = position;
+        }
 
-            if(position==0){
-                return;
-            }
-            String category = mCategoryList.get(position);
-
-            Toast.makeText(AnalysisActivity.this, "CATEGORY SELECTED: "+category, Toast.LENGTH_LONG).show();
-
-            //TODO Create per month expense for selected category for this year
-            //TODO Create per year expense for selected category for all years
+        if(yearPosition == ALL && categoryPosition == ALL){         //Grand Total for each year
+            total = mDatabaseHelper.getTotalExpenditure();
+            drawBarChart(0, null, null);
+        }
+        else if(yearPosition == GRAND_TOTAL && categoryPosition == ALL){    //Grand Total for each category
+            total = mDatabaseHelper.getTotalExpenditure();
+            drawBarChart(1,null, null);
+        }
+        else if(yearPosition == THIS_MONTH && categoryPosition == ALL){    //This month total for each category
+            total = mDatabaseHelper.getTotalExpenditureThisMonth();
+            drawBarChart(2,null, null);
+        }
+        else if(yearPosition > THIS_MONTH && categoryPosition == ALL){   //Selected year total for each category
+            String year = mYearList.get(yearPosition);
+            total = mDatabaseHelper.getTotalExpenditureForYear(year);
+            drawBarChart(3, year, null);
+        }
+        else if(yearPosition == ALL && categoryPosition > MONTHLY_PER_YEAR){   //Each year total for selected category
+            String category = mCategoryList.get(categoryPosition);
+            total = mDatabaseHelper.getTotalExpenditureForCategory(category);
+            drawBarChart(4, null, category);
+        }
+        else if(yearPosition > THIS_MONTH && categoryPosition == MONTHLY_PER_YEAR){   //Monthly total expenses for selected year
+            String year = mYearList.get(yearPosition);
+            total = mDatabaseHelper.getTotalExpenditureForYear(year);
+            drawBarChart(5, year, null);
+        }
+        else if(yearPosition > THIS_MONTH && categoryPosition > MONTHLY_PER_YEAR){  //Selected year total for selected category
+            String category = mCategoryList.get(categoryPosition);
+            String year = mYearList.get(yearPosition);
+            total = mDatabaseHelper.getTotalExpenditureForYearAndCategory(year, category);
+            drawBarChart(6, year, category);
+        }
+        else if((yearPosition == GRAND_TOTAL && categoryPosition != ALL) || (yearPosition == ALL && categoryPosition == MONTHLY_PER_YEAR)
+                || (yearPosition == THIS_MONTH && categoryPosition > ALL)){    //Invalid cases
+            Toast.makeText(AnalysisActivity.this, "Selected query does not make sense", Toast.LENGTH_LONG).show();
+            totalExpense.setText("N/A");
+            barChart.clear();
+            return;
         }
 
         totalExpense.setText(String.valueOf(total));
@@ -132,13 +134,12 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        analyzeExpenditure(0);
+        drawBarChart(0, null, null);
 
     }
 
-    private void analyzeExpenditure(int period){
-
-        Cursor rows = getQueryData(period);
+    private void drawBarChart(int query, String year, String category){
+        Cursor rows = getQueryData(query, year, category);
 
         if(rows == null){
             Toast.makeText(AnalysisActivity.this, "No Data Available", Toast.LENGTH_LONG).show();
@@ -149,46 +150,48 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
         ArrayList<String> CategoryList = new ArrayList<>();
         int i = 0;
         while(rows.moveToNext()){
-            String category = rows.getString(0);
+            String column0 = rows.getString(0);
             Float sum = (float) rows.getDouble(1);
             barEntries.add(new BarEntry(sum, i));
-            CategoryList.add(category);
+            CategoryList.add(column0);
             i++;
         }
+
         BarDataSet barDataSet = new BarDataSet(barEntries, "Expenses");
-        //barDataSet.setColors(new int[] {16776960,16737380,6579400,16744960,6618980,16760320}, this);
 
         BarData barData = new BarData(CategoryList,barDataSet);
         barChart.invalidate();
         barChart.setData(barData);
-
     }
 
-    private Cursor getQueryData(int queryNumber){
+    private Cursor getQueryData(int queryNumber, String year, String category){
         Cursor data = null;
         switch (queryNumber) {
             case 0:
-                data = mDatabaseHelper.getCategoryWiseTotalExpenditure();
-                break;
-            case 1:
-                data = mDatabaseHelper.getCategoryWiseThisYearExpenditure();
-                break;
-            case 2:
                 data = mDatabaseHelper.getYearWiseTotalExpenditure();
                 break;
-            case 3:
-                //get Category wise expenditure for this month
+            case 1:
+                data = mDatabaseHelper.getCategoryWiseTotalExpenditure();
+                break;
+            case 2:
                 data = mDatabaseHelper.getCategoryWiseThisMonthExpenditure();
                 break;
+            case 3:
+                data = mDatabaseHelper.getCategoryWiseExpenditureForYear(year);
+                break;
             case 4:
-                //get Month wise total expenditure for this year
-                data = mDatabaseHelper.getMonthWiseThisYearExpenditure();
+                data = mDatabaseHelper.getYearWiseCategoryExpenditure(category);
+                break;
+            case 5:
+                data = mDatabaseHelper.getMonthWiseExpenditureForYear(year);
+                break;
+            case 6:
+                data = mDatabaseHelper.getMonthWiseExpenditureForYearAndCategory(year,category);
                 break;
             default:
                 Log.e("AnalysisActivity", "getQueryData: Invalid query request");
-
         }
+
         return data;
     }
-
 }
