@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private EditText editTextCategory;
     private Bitmap imageBitmap;
-    private StringBuilder detectedList;
     private Intent startIntentHistory;
     private String mCurrentPhotoPath;
     DatabaseHelper mDatabaseHelper;
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         Button historyBtn = findViewById(R.id.buttonHistory);
         Button analyzeBtn = findViewById(R.id.analyzeBtn);
 
-        imageView = findViewById(R.id.imageViewReceipt);
+        imageView = findViewById(R.id.imageViewFullScreen);
         editTextCategory = findViewById(R.id.editTextCategory);
         mDatabaseHelper = new DatabaseHelper(this);     //create database to store records
 
@@ -104,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             try{
                 photoFile = createImageFile();
             } catch (IOException ex){
-                //error occured
+                //error occurred
             }
             if (photoFile != null){
                 Uri photoURI = FileProvider.getUriForFile(this,

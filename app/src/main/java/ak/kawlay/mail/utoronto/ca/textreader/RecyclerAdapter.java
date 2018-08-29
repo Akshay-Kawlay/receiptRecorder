@@ -1,6 +1,7 @@
 package ak.kawlay.mail.utoronto.ca.textreader;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -34,7 +35,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Record
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecordViewHolder recordViewHolder, int i) {
+    public void onBindViewHolder(@NonNull RecordViewHolder recordViewHolder, final int i) {
         receiptRecord record = recordList.get(i);
         recordViewHolder.textViewAmount.setText("$"+record.getAmount().toString());
         recordViewHolder.textViewName.setText(record.getName());
@@ -47,7 +48,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Record
                 .fit()
                 .into(recordViewHolder.imageViewReceipt);
 
-        //recordViewHolder.imageViewReceipt.setImageURI(Uri.fromFile(new File(record.getPhotoPath())));
+        recordViewHolder.imageViewReceipt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String path = recordList.get(i).getPhotoPath();
+                Intent mainIntent = new Intent(mContext, FullScreenActivity.class);
+                mainIntent.putExtra("ca.utoronto.mail.kawlay.ak.textreader.PHOTOPATH", path);
+                v.getContext().startActivity(mainIntent);
+            }
+        });
     }
 
     @Override
@@ -63,18 +72,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Record
         public RecordViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            imageViewReceipt = itemView.findViewById(R.id.imageViewReceipt);
+            imageViewReceipt = itemView.findViewById(R.id.imageViewFullScreen);
             textViewAmount = itemView.findViewById(R.id.textViewAmount);
             textViewName = itemView.findViewById(R.id.textviewName);
             textViewDate = itemView.findViewById(R.id.textViewDate);
             textViewCategory = itemView.findViewById(R.id.textViewCategory);
-
-            imageViewReceipt.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO create new intent to display full sized image of the receipt
-                }
-            });
 
         }
     }

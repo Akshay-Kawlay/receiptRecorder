@@ -46,7 +46,8 @@
         <activity
             android:name=".ScrollingActivity"
             android:label="@string/title_activity_scrolling" />
-        <activity android:name=".AnalysisActivity"></activity>
+        <activity android:name=".AnalysisActivity" />
+        <activity android:name=".FullScreenActivity"></activity>
     </application>
 
 </manifest>
