@@ -26,7 +26,6 @@ public class FullScreenActivity extends AppCompatActivity {
         else{
             Picasso.get()
                     .load(new File(photopath))
-                    .centerCrop()
                     .fit()
                     .into(imageView);
         }

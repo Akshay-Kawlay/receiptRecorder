@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static java.lang.StrictMath.abs;
+
 public class MainActivity extends AppCompatActivity {
 
     private ImageView imageView;
@@ -103,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
             try{
                 photoFile = createImageFile();
             } catch (IOException ex){
-                //error occurred
+                Log.e("MainActivity: dispatchTakePictureIntent::", "Could not create image file" + ex.toString());
+                Toast.makeText(MainActivity.this, "Could not create image file", Toast.LENGTH_LONG).show();
             }
             if (photoFile != null){
                 Uri photoURI = FileProvider.getUriForFile(this,
@@ -123,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
             Matrix matrix = new Matrix();
             matrix.postRotate(90);
             Bitmap rotatedBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
-            //imageView.setImageBitmap(rotatedBitmap);
             imageBitmap = rotatedBitmap;
 
             detectText();
@@ -171,21 +173,27 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "No Text detected", Toast.LENGTH_LONG).show();
             return;
         }
-        Double maxAmountPaid = 0.0;
+
+        String maxAmount = "-1.0";
         Rect maxAmountRect = new Rect(0,0,0,0);
 
         List<String> name = new ArrayList<String>();
         name.add("Unknown");
         int topMostLine = Integer.MAX_VALUE;
-        int lowestElement = Integer.MIN_VALUE;
+        int minDiff = Integer.MAX_VALUE;
+        int TOTAL_position = -1;
         Rect nameBoundingBox = new Rect(0,0,0,0);
 
-        for (FirebaseVisionText.Block block : text.getBlocks()){
-            for (FirebaseVisionText.Line line: block.getLines()) {
+        for (FirebaseVisionText.Block block : text.getBlocks()) {
+            for (FirebaseVisionText.Line line : block.getLines()) {
                 String lineText = line.getText();
                 Rect lineFrame = line.getBoundingBox();
-                if (lineFrame.top < topMostLine){
-                    if(name.size() > 0){
+                if (lineText.toUpperCase().equals("TOTAL")) {
+                    Toast.makeText(MainActivity.this, "Detected: "+lineText, Toast.LENGTH_LONG).show();
+                    TOTAL_position = lineFrame.top;
+                }
+                if (lineFrame.top < topMostLine) {
+                    if (name.size() > 0) {
                         name.clear();
                     }
                     name.add(lineText);
@@ -194,38 +202,39 @@ public class MainActivity extends AppCompatActivity {
                     nameBoundingBox.bottom = lineFrame.bottom;
                     nameBoundingBox.left = lineFrame.left;
                     nameBoundingBox.right = lineFrame.right;
-
-                }
-
-                for (FirebaseVisionText.Element element: line.getElements()) {
-                    String elementText = element.getText();
-                    for (int i = 0; i < elementText.length(); i++){
-                        if (elementText.charAt(i)=='$'){
-                            String str = elementText.replace("$", "");
-                            Rect elementFrame = element.getBoundingBox();
-                            
-                            if (elementFrame.bottom > lowestElement) {
-                                Double amount = Double.parseDouble(str);
-                                maxAmountPaid = amount;
-                                lowestElement = elementFrame.bottom;
-                                maxAmountRect.top = lineFrame.top;
-                                maxAmountRect.bottom = lineFrame.bottom;
-                                maxAmountRect.left = lineFrame.left;
-                                maxAmountRect.right = lineFrame.right;
-                            }
-
-                            Log.i("AMOUNT="+elementText, str);
-                            break;
-                        }
-                    }
                 }
             }
         }
 
-        drawBoundingBox(nameBoundingBox, maxAmountRect);
+        for (FirebaseVisionText.Block block : text.getBlocks()){
+            for (FirebaseVisionText.Line line: block.getLines()) {
+                String lineText = line.getText();
+                Rect lineFrame = line.getBoundingBox();
 
-        String Category = editTextCategory.getText().toString();
-        fillRecord(name.get(0), maxAmountPaid, Category);
+                int diff = abs(lineFrame.top - TOTAL_position);
+                if (diff < minDiff && !lineText.toUpperCase().equals("TOTAL")) {
+                    minDiff = diff;
+                    maxAmount = lineText;
+
+                    maxAmountRect.top = lineFrame.top;
+                    maxAmountRect.bottom = lineFrame.bottom;
+                    maxAmountRect.left = lineFrame.left;
+                    maxAmountRect.right = lineFrame.right;
+                }
+
+            }
+        }
+
+        drawBoundingBox(nameBoundingBox, maxAmountRect);
+        try {
+            Double purchaseAmount = Double.parseDouble(maxAmount.replace("$", ""));
+            String Category = editTextCategory.getText().toString();
+            fillRecord(name.get(0), purchaseAmount, Category);
+        }catch (Exception e){
+            Log.e("MainActivity: processText::", "maxAmount could not be parsed" + e.toString());
+            Toast.makeText(MainActivity.this, "Could not read total amount", Toast.LENGTH_LONG).show();
+        }
+
 
     }
 
@@ -257,7 +266,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Attach the canvas to the ImageView
         imageView.setImageDrawable(new BitmapDrawable(getResources(), tempBitmap));
-        //imageView.setImageBitmap(imageBitmap);
     }
 
 

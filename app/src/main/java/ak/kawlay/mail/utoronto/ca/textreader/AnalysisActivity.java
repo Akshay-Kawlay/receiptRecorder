@@ -128,7 +128,7 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
             return;
         }
 
-        totalExpense.setText(String.valueOf(total));
+        totalExpense.setText("Sum $"+String.valueOf(total));
     }
 
 
@@ -158,7 +158,7 @@ public class AnalysisActivity extends AppCompatActivity implements AdapterView.O
         }
 
         BarDataSet barDataSet = new BarDataSet(barEntries, "Expenses");
-
+        barDataSet.setValueTextSize(12f);
         BarData barData = new BarData(CategoryList,barDataSet);
         barChart.invalidate();
         barChart.setData(barData);
